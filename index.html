@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linkvertise Dynamic Link Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(25, 25, 35, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a2a3e;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #00ff41;
+        }
+        
+        h1 {
+            color: #00ff41;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .subtitle {
+            color: #8a8aa3;
+            font-size: 16px;
+        }
+        
+        .input-section, .output-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #00ff41;
+            font-size: 18px;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .input-field {
+            flex: 1;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(40, 40, 55, 0.8);
+            border: 2px solid #3a3a4e;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #00a82d, #00ff41);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.4);
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-icon {
+            font-size: 18px;
+        }
+        
+        .output-box {
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: rgba(0, 255, 65, 0.1);
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(0, 255, 65, 0.2);
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .status.success {
+            background: rgba(0, 255, 65, 0.1);
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            display: block;
+        }
+        
+        .status.error {
+            background: rgba(255, 50, 50, 0.1);
+            color: #ff5555;
+            border: 1px solid #ff5555;
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #00ff41;
+            margin-top: 20px;
+        }
+        
+        .loading span {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        .info {
+            background: rgba(0, 100, 200, 0.1);
+            border: 1px solid #00aaff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #88ddff;
+            font-size: 14px;
+        }
+        
+        .info strong {
+            color: #00aaff;
+        }
+        
+        .info code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .examples {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #ffd700;
+            font-size: 14px;
+        }
+        
+        .examples h4 {
+            margin-bottom: 10px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .example-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .example-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            text-align: left;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .example-item:hover {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: #00ff41;
+        }
+        
+        .example-item .source {
+            font-size: 12px;
+            color: #8a8aa3;
+            margin-top: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #8a8aa3;
+            font-size: 14px;
+            border-top: 1px solid #3a3a4e;
+            padding-top: 20px;
+        }
+        
+        .current-id {
+            color: #00ff41;
+            font-weight: bold;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-link"></i> Linkvertise Dynamic Link Generator</h1>
+            <p class="subtitle">Generate dynamic Linkvertise links for ANY user ID. Works with all URLs.</p>
+        </header>
+        
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-user"></i>
+                <span>Step 1: Enter Your Linkvertise ID</span>
+            </div>
+            <div class="input-row">
+                <div class="input-field">
+                    <input type="text" id="userId" placeholder="Enter your Linkvertise ID (e.g., 151369)" value="151369">
+                    <div style="font-size: 12px; color: #888; margin-top: 5px;">
+                        Find your ID in your Linkvertise dashboard
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-title" style="margin-top: 20px;">
+                <i class="fas fa-paste"></i>
+                <span>Step 2: Enter ANY URL to Convert</span>
+            </div>
+            <div class="input-group">
+                <input type="text" id="inputLink" placeholder="https://any-url.com/your-link-here">
+            </div>
+            <button id="generateBtn">
+                <i class="fas fa-bolt btn-icon"></i>
+                GENERATE DYNAMIC LINK
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <span>Generating dynamic link... Please wait 3-5 seconds</span>
+        </div>
+        
+        <div class="output-section">
+            <div class="section-title">
+                <i class="fas fa-download"></i>
+                <span>Step 3: Copy Your Dynamic Link</span>
+            </div>
+            <div class="output-box">
+                <textarea id="outputLink" placeholder="Dynamic link will appear here..." readonly></textarea>
+                <button class="copy-btn" id="copyBtn">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+        </div>
+        
+        <div class="status" id="statusMessage"></div>
+        
+        <div class="examples">
+            <h4><i class="fas fa-lightbulb"></i> Test URLs (Click to Load) - All with ID 151369</h4>
+            <p style="color: #aaa; font-size: 13px; margin-bottom: 10px;">These links will auto-fill with ID 151369</p>
+            
+            <div class="example-grid">
+                <div class="example-item" data-url="https://link-target.net/151369/belldel0622">
+                    https://link-target.net/151369/belldel0622
+                    <div class="source">Link-target with ID 151369</div>
+                </div>
+                
+                <div class="example-item" data-url="https://direct-link.net/151369/Vikingnewvid">
+                    https://direct-link.net/151369/Vikingnewvid
+                    <div class="source">Direct-link with ID 151369</div>
+                </div>
+                
+                <div class="example-item" data-url="https://www.youtube.com/watch?v=PkZNo7MFNFg">
+                    https://www.youtube.com/watch?v=PkZNo7MFNFg
+                    <div class="source">YouTube - Learn JavaScript</div>
+                </div>
+                
+                <div class="example-item" data-url="https://www.youtube.com/watch?v=rfscVS0vtbw">
+                    https://www.youtube.com/watch?v=rfscVS0vtbw
+                    <div class="source">YouTube - Learn Python</div>
+                </div>
+                
+                <div class="example-item" data-url="https://github.com/trending">
+                    https://github.com/trending
+                    <div class="source">GitHub Trending</div>
+                </div>
+                
+                <div class="example-item" data-url="https://github.com/nodejs/node">
+                    https://github.com/nodejs/node
+                    <div class="source">GitHub - Node.js</div>
+                </div>
+                
+                <div class="example-item" data-url="https://stackoverflow.com/questions">
+                    https://stackoverflow.com/questions
+                    <div class="source">Stack Overflow</div>
+                </div>
+                
+                <div class="example-item" data-url="https://codepen.io/pen/">
+                    https://codepen.io/pen/
+                    <div class="source">CodePen Editor</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info">
+            <p><strong>How it works:</strong></p>
+            <p>1. Enter your Linkvertise User ID (default: 151369) - change to your own ID</p>
+            <p>2. Insert ANY URL in the URL field</p>
+            <p>3. Click "Generate" - system creates dynamic link for YOUR ID</p>
+            <p>4. Copy the dynamic Linkvertise link</p>
+            <p><strong>Current ID in use:</strong> <code id="currentIdDisplay">151369</code></p>
+        </div>
+        
+        <footer>
+            <p>Linkvertise Dynamic Link Generator v3.0 | Works with ANY Linkvertise ID</p>
+            <p>Share this tool with your community! | Made for GitHub</p>
+        </footer>
+    </div>
+
+    <!-- Hidden iframe for script execution -->
+    <iframe id="hiddenFrame" style="display: none;"></iframe>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userIdInput = document.getElementById('userId');
+            const inputLink = document.getElementById('inputLink');
+            const outputLink = document.getElementById('outputLink');
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const loading = document.getElementById('loading');
+            const statusMessage = document.getElementById('statusMessage');
+            const hiddenFrame = document.getElementById('hiddenFrame');
+            const exampleItems = document.querySelectorAll('.example-item');
+            const currentIdDisplay = document.getElementById('currentIdDisplay');
+            
+            // Update current ID display
+            function updateIdDisplay() {
+                currentIdDisplay.textContent = userIdInput.value || '151369';
+            }
+            
+            // Set input field empty by default
+            inputLink.value = '';
+            inputLink.placeholder = 'https://any-url.com/your-link-here';
+            
+            // Initialize ID display
+            updateIdDisplay();
+            
+            // Update ID display when ID changes
+            userIdInput.addEventListener('input', updateIdDisplay);
+            
+            // Handle example clicks
+            exampleItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    
+                    // Always set ID to 151369 for test examples
+                    userIdInput.value = "151369";
+                    updateIdDisplay();
+                    
+                    inputLink.value = url;
+                    inputLink.focus();
+                    showStatus('Test URL loaded with ID 151369', 'success');
+                });
+            });
+            
+            // Handle link generation
+            generateBtn.addEventListener('click', function() {
+                const userId = userIdInput.value.trim() || "151369";
+                const originalUrl = inputLink.value.trim();
+                
+                if (!originalUrl) {
+                    showStatus('Please enter a URL', 'error');
+                    return;
+                }
+                
+                // Validate URL format
+                try {
+                    new URL(originalUrl);
+                } catch (e) {
+                    showStatus('Invalid URL format. Please enter a valid URL (e.g., https://example.com)', 'error');
+                    return;
+                }
+                
+                // Validate User ID
+                if (!userId || !/^\d+$/.test(userId)) {
+                    showStatus('Please enter a valid Linkvertise ID (numbers only)', 'error');
+                    userIdInput.focus();
+                    return;
+                }
+                
+                // Show loading state
+                loading.style.display = 'block';
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> GENERATING...';
+                outputLink.value = '';
+                statusMessage.className = 'status';
+                
+                // Create HTML with the dynamic link code using user's ID
+                const htmlContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Linkvertise Generator - ID: ${userId}</title>
+                        <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"><\/script>
+                        <style>
+                            body { 
+                                margin: 0; 
+                                padding: 20px; 
+                                background: #1a1a1a; 
+                                color: white; 
+                                font-family: monospace; 
+                            }
+                            #status { color: #00ff41; margin-top: 20px; }
+                        </style>
+                    </head>
+                    <body>
+                        <div id="status">Processing URL: ${originalUrl}</div>
+                        <div>Using Linkvertise ID: ${userId}</div>
+                        <a href="${originalUrl}" id="target" style="display: none;"></a>
+                        <script>
+                            let linkProcessed = false;
+                            
+                            // Set up Linkvertise with USER'S ID
+                            try {
+                                linkvertise(${userId}, {whitelist: [], blacklist: []});
+                                console.log("Linkvertise initialized for User ID:", ${userId});
+                            } catch (e) {
+                                console.error("Linkvertise error:", e);
+                                window.parent.postMessage({
+                                    type: 'linkvertise_error',
+                                    error: e.message,
+                                    url: "${originalUrl}",
+                                    userId: "${userId}"
+                                }, '*');
+                            }
+                            
+                            // Check for link transformation
+                            const checkLink = setInterval(() => {
+                                const linkElement = document.getElementById('target');
+                                if (linkElement && linkElement.href && !linkElement.href.includes('${originalUrl.replace(/https?:\/\//, '')}')) {
+                                    // Link was transformed!
+                                    clearInterval(checkLink);
+                                    linkProcessed = true;
+                                    window.parent.postMessage({
+                                        type: 'linkvertise_result',
+                                        url: linkElement.href,
+                                        original: "${originalUrl}",
+                                        userId: "${userId}"
+                                    }, '*');
+                                }
+                            }, 500);
+                            
+                            // Timeout after 7 seconds
+                            setTimeout(() => {
+                                if (!linkProcessed) {
+                                    clearInterval(checkLink);
+                                    const linkElement = document.getElementById('target');
+                                    window.parent.postMessage({
+                                        type: 'linkvertise_result',
+                                        url: linkElement ? linkElement.href : "${originalUrl}",
+                                        original: "${originalUrl}",
+                                        userId: "${userId}",
+                                        note: "Link may not have been transformed by Linkvertise"
+                                    }, '*');
+                                }
+                            }, 7000);
+                        <\/script>
+                    </body>
+                    </html>
+                `;
+                
+                // Load HTML into iframe
+                hiddenFrame.srcdoc = htmlContent;
+                
+                // Set timeout for error handling
+                setTimeout(() => {
+                    if (!outputLink.value) {
+                        showStatus('Generation timed out. The URL may not be supported by Linkvertise.', 'error');
+                        resetButton();
+                    }
+                }, 8000);
+            });
+            
+            // Handle messages from iframe
+            window.addEventListener('message', function(event) {
+                if (event.data.type === 'linkvertise_result') {
+                    outputLink.value = event.data.url;
+                    
+                    if (event.data.note) {
+                        showStatus('Link generated for ID ' + event.data.userId + ' (Note: ' + event.data.note + ')', 'success');
+                    } else if (event.data.url !== event.data.original) {
+                        showStatus('Dynamic link successfully generated for ID ' + event.data.userId + '!', 'success');
+                    } else {
+                        showStatus('Link generated for ID ' + event.data.userId + ' but may not be transformed by Linkvertise', 'success');
+                    }
+                    
+                    resetButton();
+                    
+                    // Auto-scroll to result
+                    outputLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                if (event.data.type === 'linkvertise_error') {
+                    showStatus('Linkvertise error for ID ' + event.data.userId + ': ' + event.data.error, 'error');
+                    resetButton();
+                }
+            });
+            
+            // Handle copy button
+            copyBtn.addEventListener('click', function() {
+                if (!outputLink.value) {
+                    showStatus('No link to copy', 'error');
+                    return;
+                }
+                
+                outputLink.select();
+                navigator.clipboard.writeText(outputLink.value).then(() => {
+                    // Visual feedback
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    copyBtn.style.background = 'rgba(0, 255, 65, 0.3)';
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.style.background = '';
+                    }, 2000);
+                    
+                    showStatus('Link copied to clipboard!', 'success');
+                }).catch(err => {
+                    showStatus('Failed to copy: ' + err, 'error');
+                });
+            });
+            
+            // Status display function
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status ${type}`;
+                statusMessage.style.display = 'block';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    if (statusMessage.className.includes(type)) {
+                        statusMessage.style.display = 'none';
+                    }
+                }, 5000);
+            }
+            
+            // Reset button state
+            function resetButton() {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-bolt btn-icon"></i> GENERATE DYNAMIC LINK';
+            }
+            
+            // Focus on input field
+            inputLink.focus();
+            
+            // Allow pressing Enter to generate
+            inputLink.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateBtn.click();
+                }
+            });
+            
+            // Allow pressing Enter in ID field to focus URL field
+            userIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    inputLink.focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
